@@ -1,0 +1,713 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Royal Ledger — Vendors to the Crowned Houses</title>
+<style>
+  :root {
+    --ink: #1d1d1f;
+    --ink-soft: #424245;
+    --ink-mute: #86868b;
+    --line: #d2d2d7;
+    --line-soft: #f5f5f7;
+    --paper: #fbfbfd;
+    --paper-alt: #ffffff;
+    --accent: #6e6e73;
+    --gold: #a67c3c;
+    --sage: #4a5d43;
+    --dusk: #3a3a52;
+    --radius: 18px;
+    --font-display: "SF Pro Display", -apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica, Arial, sans-serif;
+    --font-text: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    --font-serif: "New York", "Iowan Old Style", "Palatino", "Times New Roman", Georgia, serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+  body {
+    font-family: var(--font-text);
+    background: var(--paper);
+    color: var(--ink);
+    line-height: 1.5;
+    font-size: 15px;
+  }
+  a { color: inherit; text-decoration: none; }
+
+  /* Hero */
+  .hero {
+    padding: 96px 24px 72px;
+    text-align: center;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+  .hero .eyebrow {
+    font-size: 12px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 20px;
+    font-weight: 500;
+  }
+  .hero h1 {
+    font-family: var(--font-serif);
+    font-weight: 400;
+    font-size: clamp(40px, 6vw, 68px);
+    letter-spacing: -0.02em;
+    line-height: 1.05;
+    color: var(--ink);
+    margin-bottom: 20px;
+  }
+  .hero h1 em {
+    font-style: italic;
+    color: var(--sage);
+  }
+  .hero .lede {
+    font-size: 19px;
+    color: var(--ink-soft);
+    max-width: 640px;
+    margin: 0 auto 32px;
+    line-height: 1.5;
+  }
+  .hero .meta {
+    font-size: 13px;
+    color: var(--ink-mute);
+    letter-spacing: 0.02em;
+  }
+
+  /* Notice strip */
+  .notice {
+    max-width: 900px;
+    margin: 0 auto 64px;
+    padding: 24px 28px;
+    background: var(--paper-alt);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    font-size: 14px;
+    color: var(--ink-soft);
+    line-height: 1.6;
+  }
+  .notice strong { color: var(--ink); font-weight: 600; }
+
+  /* Controls */
+  .controls {
+    max-width: 1240px;
+    margin: 0 auto 40px;
+    padding: 0 24px;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+  .search {
+    width: 100%;
+    padding: 14px 20px;
+    border: 1px solid var(--line);
+    border-radius: 100px;
+    font-family: inherit;
+    font-size: 15px;
+    background: var(--paper-alt);
+    color: var(--ink);
+    outline: none;
+    transition: border-color 0.15s ease;
+  }
+  .search:focus { border-color: var(--ink); }
+  .search::placeholder { color: var(--ink-mute); }
+
+  .filter-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+  }
+  .filter-label {
+    font-size: 12px;
+    color: var(--ink-mute);
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    margin-right: 4px;
+    font-weight: 500;
+  }
+  .chip {
+    padding: 8px 14px;
+    border-radius: 100px;
+    border: 1px solid var(--line);
+    background: var(--paper-alt);
+    font-family: inherit;
+    font-size: 13px;
+    color: var(--ink-soft);
+    cursor: pointer;
+    transition: all 0.15s ease;
+    white-space: nowrap;
+  }
+  .chip:hover { border-color: var(--ink-soft); color: var(--ink); }
+  .chip.active {
+    background: var(--ink);
+    color: var(--paper);
+    border-color: var(--ink);
+  }
+
+  /* Result count */
+  .result-meta {
+    max-width: 1240px;
+    margin: 0 auto;
+    padding: 24px 24px 8px;
+    font-size: 13px;
+    color: var(--ink-mute);
+    letter-spacing: 0.02em;
+  }
+
+  /* Grid */
+  .grid {
+    max-width: 1240px;
+    margin: 0 auto;
+    padding: 16px 24px 80px;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 16px;
+  }
+  .card {
+    background: var(--paper-alt);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 24px 24px 20px;
+    display: flex;
+    flex-direction: column;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+  }
+  .card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.06);
+    border-color: #c7c7cc;
+  }
+
+  .card-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+  .card-house {
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--ink-mute);
+    font-weight: 500;
+  }
+  .status-dot {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    font-weight: 500;
+  }
+  .status-dot::before {
+    content: "";
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+  }
+  .status-active { color: var(--sage); }
+  .status-active::before { background: var(--sage); }
+  .status-historical { color: var(--gold); }
+  .status-historical::before { background: var(--gold); }
+  .status-informal { color: var(--dusk); }
+  .status-informal::before { background: var(--dusk); }
+  .status-phaseout { color: #b04a26; }
+  .status-phaseout::before { background: #b04a26; }
+
+  .card h3 {
+    font-family: var(--font-serif);
+    font-weight: 400;
+    font-size: 22px;
+    letter-spacing: -0.01em;
+    line-height: 1.15;
+    margin-bottom: 6px;
+  }
+  .card .category {
+    font-size: 13px;
+    color: var(--gold);
+    letter-spacing: 0.02em;
+    margin-bottom: 14px;
+    font-weight: 500;
+  }
+  .card p {
+    font-size: 14px;
+    color: var(--ink-soft);
+    line-height: 1.55;
+    margin-bottom: 12px;
+    flex-grow: 1;
+  }
+  .card .footer {
+    font-size: 12px;
+    color: var(--ink-mute);
+    letter-spacing: 0.02em;
+    padding-top: 12px;
+    border-top: 1px solid var(--line-soft);
+    display: flex;
+    justify-content: space-between;
+    gap: 8px;
+  }
+  .card .est { font-variant-numeric: tabular-nums; }
+
+  /* Legend */
+  .legend {
+    max-width: 1240px;
+    margin: 0 auto;
+    padding: 32px 24px 64px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 24px;
+    justify-content: center;
+    font-size: 12px;
+    color: var(--ink-mute);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+  .legend-item { display: flex; align-items: center; gap: 8px; }
+  .legend-item .dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+  }
+
+  /* Footer */
+  footer {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 48px 24px 96px;
+    text-align: center;
+    color: var(--ink-mute);
+    font-size: 12px;
+    line-height: 1.7;
+    border-top: 1px solid var(--line-soft);
+  }
+  footer p { margin-bottom: 12px; }
+  footer strong { color: var(--ink-soft); }
+
+  .empty-state {
+    grid-column: 1 / -1;
+    padding: 80px 24px;
+    text-align: center;
+    color: var(--ink-mute);
+    font-size: 15px;
+  }
+
+  @media (max-width: 640px) {
+    .hero { padding: 64px 20px 48px; }
+    .grid { padding: 16px 16px 60px; grid-template-columns: 1fr; }
+    .card { padding: 20px; }
+  }
+</style>
+</head>
+<body>
+
+<section class="hero">
+  <div class="eyebrow">A Reference</div>
+  <h1>Who supplies <em>the crowned</em> houses of the world.</h1>
+  <p class="lede">A working ledger of tradespeople, tailors, breeders, gardeners, jewellers, and grocers who carry, or once carried, royal appointment. Curated for accuracy over flourish.</p>
+  <p class="meta">Updated July 2026 · 12 monarchies · 32 categories</p>
+</section>
+
+<div class="notice">
+  <strong>A note on state.</strong> Royal warrant regimes change. King Charles III completed a two-tranche review in 2024–25 that dropped roughly a hundred previous holders (Cadbury, Unilever, Krug among them) and reappointed 386 in December 2024, with William and Catherine joining as grantors from spring 2026. King Frederik X of Denmark announced in November 2024 that Danish warrants will be phased out by 2029 with no renewals. Spain, Norway, and Japan no longer grant formal warrants; Middle Eastern and most Asian monarchies have never used the system. Where no formal warrant exists, this ledger records known long-standing suppliers with a distinct status marker.
+</div>
+
+<div class="controls">
+  <input type="text" class="search" id="search" placeholder="Search by name, house, or trade — e.g. 'Bentley', 'Sultan', 'shoes'">
+
+  <div class="filter-row">
+    <span class="filter-label">House</span>
+    <button class="chip active" data-filter="house" data-value="all">All</button>
+    <button class="chip" data-filter="house" data-value="UK">United Kingdom</button>
+    <button class="chip" data-filter="house" data-value="NL">Netherlands</button>
+    <button class="chip" data-filter="house" data-value="BE">Belgium</button>
+    <button class="chip" data-filter="house" data-value="LU">Luxembourg</button>
+    <button class="chip" data-filter="house" data-value="SE">Sweden</button>
+    <button class="chip" data-filter="house" data-value="NO">Norway</button>
+    <button class="chip" data-filter="house" data-value="DK">Denmark</button>
+    <button class="chip" data-filter="house" data-value="ES">Spain</button>
+    <button class="chip" data-filter="house" data-value="MC">Monaco</button>
+    <button class="chip" data-filter="house" data-value="LI">Liechtenstein</button>
+    <button class="chip" data-filter="house" data-value="JP">Japan</button>
+    <button class="chip" data-filter="house" data-value="TH">Thailand</button>
+    <button class="chip" data-filter="house" data-value="BN">Brunei</button>
+    <button class="chip" data-filter="house" data-value="BT">Bhutan</button>
+    <button class="chip" data-filter="house" data-value="MY">Malaysia</button>
+    <button class="chip" data-filter="house" data-value="SA">Saudi Arabia</button>
+    <button class="chip" data-filter="house" data-value="AE">UAE</button>
+    <button class="chip" data-filter="house" data-value="QA">Qatar</button>
+    <button class="chip" data-filter="house" data-value="OM">Oman</button>
+    <button class="chip" data-filter="house" data-value="JO">Jordan</button>
+    <button class="chip" data-filter="house" data-value="MA">Morocco</button>
+  </div>
+
+  <div class="filter-row">
+    <span class="filter-label">Trade</span>
+    <button class="chip active" data-filter="cat" data-value="all">All</button>
+    <button class="chip" data-filter="cat" data-value="tailoring">Tailoring & Shirting</button>
+    <button class="chip" data-filter="cat" data-value="footwear">Footwear</button>
+    <button class="chip" data-filter="cat" data-value="hats">Hats & Millinery</button>
+    <button class="chip" data-filter="cat" data-value="leather">Leather & Luggage</button>
+    <button class="chip" data-filter="cat" data-value="jewellery">Jewellery & Watches</button>
+    <button class="chip" data-filter="cat" data-value="silver">Silver & Crystal</button>
+    <button class="chip" data-filter="cat" data-value="fragrance">Fragrance & Toiletries</button>
+    <button class="chip" data-filter="cat" data-value="grooming">Barbers & Grooming</button>
+    <button class="chip" data-filter="cat" data-value="beauty">Hair & Makeup</button>
+    <button class="chip" data-filter="cat" data-value="grocers">Grocers & Provisions</button>
+    <button class="chip" data-filter="cat" data-value="wine">Wine, Spirits & Champagne</button>
+    <button class="chip" data-filter="cat" data-value="tea">Tea, Coffee & Chocolate</button>
+    <button class="chip" data-filter="cat" data-value="motors">Motor Vehicles</button>
+    <button class="chip" data-filter="cat" data-value="firearms">Firearms & Field Sports</button>
+    <button class="chip" data-filter="cat" data-value="equine">Saddlery & Equine</button>
+    <button class="chip" data-filter="cat" data-value="dogs">Kennels & Dogs</button>
+    <button class="chip" data-filter="cat" data-value="garden">Gardeners & Landscape</button>
+    <button class="chip" data-filter="cat" data-value="florists">Florists</button>
+    <button class="chip" data-filter="cat" data-value="furniture">Furniture & Cabinetry</button>
+    <button class="chip" data-filter="cat" data-value="textiles">Textiles & Upholstery</button>
+    <button class="chip" data-filter="cat" data-value="beds">Beds & Bedding</button>
+    <button class="chip" data-filter="cat" data-value="china">China & Porcelain</button>
+    <button class="chip" data-filter="cat" data-value="pens">Stationers & Pens</button>
+    <button class="chip" data-filter="cat" data-value="pianos">Pianos & Instruments</button>
+    <button class="chip" data-filter="cat" data-value="kitchen">Kitchens & Ranges</button>
+    <button class="chip" data-filter="cat" data-value="household">Household & Cleaning</button>
+    <button class="chip" data-filter="cat" data-value="aviation">Aviation & Yachts</button>
+  </div>
+
+  <div class="filter-row">
+    <span class="filter-label">Status</span>
+    <button class="chip active" data-filter="status" data-value="all">All</button>
+    <button class="chip" data-filter="status" data-value="active">Active warrant</button>
+    <button class="chip" data-filter="status" data-value="phaseout">Being phased out</button>
+    <button class="chip" data-filter="status" data-value="historical">Historical warrant</button>
+    <button class="chip" data-filter="status" data-value="informal">Known supplier</button>
+  </div>
+</div>
+
+<div class="result-meta"><span id="count">—</span></div>
+
+<div class="grid" id="grid"></div>
+
+<div class="legend">
+  <div class="legend-item"><span class="dot" style="background:#4a5d43"></span>Active warrant</div>
+  <div class="legend-item"><span class="dot" style="background:#b04a26"></span>Warrant being phased out</div>
+  <div class="legend-item"><span class="dot" style="background:#a67c3c"></span>Historical warrant</div>
+  <div class="legend-item"><span class="dot" style="background:#3a3a52"></span>Known supplier, no formal warrant</div>
+</div>
+
+<footer>
+  <p><strong>Method.</strong> UK data reflects the Royal Warrant Holders Association register as reissued by King Charles III and Queen Camilla through the 2024 and December 2024 tranches. Continental warrants sourced from Hofleverancier (NL), Hovleverantör (SE), Hoflev (DK), Cour Grand-Ducale (LU), and the Belgian Court supplier register. Middle Eastern and Asian entries reflect publicly reported long-standing supply relationships where no formal warrant system exists.</p>
+  <p><strong>Limits.</strong> Warrants are granted to named individuals within firms and can be revoked or lapse. Personal suppliers to individual family members are often not disclosed. Nothing here should be read as a currently endorsed commercial claim; verify with the relevant royal household or association before citing.</p>
+  <p>Compiled July 2026 · <a href="#" style="border-bottom:1px solid var(--line)">ponelson.github.io</a></p>
+</footer>
+
+<script>
+const VENDORS = [
+  // ==================== UNITED KINGDOM ====================
+  { name: "Anderson & Sheppard", house: "UK", cat: "tailoring", trade: "Bespoke tailors", status: "active", est: "1906", note: "Savile Row house long favoured by King Charles III for double-breasted suits and the drape cut. Held warrant from Prince of Wales; reappointed under new reign." },
+  { name: "Turnbull & Asser", house: "UK", cat: "tailoring", trade: "Shirtmakers", status: "active", est: "1885", note: "Jermyn Street shirtmakers to King Charles III for six decades. The three-button turnback cuff is theirs." },
+  { name: "Gieves & Hawkes", house: "UK", cat: "tailoring", trade: "Tailors", status: "historical", est: "1771", note: "No. 1 Savile Row. Held warrants to Elizabeth II, Prince Philip, and Prince of Wales; status under Charles III's review remains uncertain following ownership changes." },
+  { name: "Henry Poole & Co", house: "UK", cat: "tailoring", trade: "Founders of Savile Row tailoring", status: "historical", est: "1806", note: "Held warrants across five reigns from Queen Victoria forward. Court dress and diplomatic uniform specialists." },
+  { name: "Ede & Ravenscroft", house: "UK", cat: "tailoring", trade: "Robemakers and tailors", status: "active", est: "1689", note: "Robemakers to the Sovereign since William and Mary. Coronation robes for Charles III made here." },
+  { name: "John Lobb", house: "UK", cat: "footwear", trade: "Bespoke bootmakers", status: "active", est: "1866", note: "St James's Street bootmakers. Held warrant from Prince Philip and Prince of Wales; the family firm remains independent from the Hermès-owned RTW line." },
+  { name: "Lock & Co Hatters", house: "UK", cat: "hats", trade: "Hatters", status: "active", est: "1676", note: "St James's Street. Warrant to Charles III as hatters, previously held from 1993 as Prince of Wales. Nelson's bicorne was made here." },
+  { name: "Philip Treacy", house: "UK", cat: "hats", trade: "Milliner", status: "active", est: "1990", note: "Warrant to Queen Camilla, appointed 2024. Occasion hats for court weddings and state events." },
+  { name: "Swaine", house: "UK", cat: "leather", trade: "Umbrella and stick makers, briefcases", status: "active", est: "1750", note: "Formerly Swaine Adeney Brigg. Umbrellas and gentleman's leather. Warrants from Elizabeth II historically; the company also produces the Indiana Jones hat." },
+  { name: "Launer London", house: "UK", cat: "leather", trade: "Handbags", status: "active", est: "1941", note: "Warrant to Queen Camilla granted 2025. Preferred handbag maker of Elizabeth II across her later reign; the Traviata and Diva models were her staples." },
+  { name: "Globe-Trotter", house: "UK", cat: "leather", trade: "Cases and luggage", status: "historical", est: "1897", note: "Vulcanised fibreboard cases. Elizabeth II reportedly took a Globe-Trotter case on honeymoon; the firm has traded on the association." },
+  { name: "Asprey", house: "UK", cat: "jewellery", trade: "Jewellers and silversmiths", status: "historical", est: "1781", note: "Held warrants from Queen Victoria through Elizabeth II. New Bond Street; declined to reapply in the Charles III tranches per public reporting." },
+  { name: "Garrard", house: "UK", cat: "jewellery", trade: "Jewellers", status: "historical", est: "1735", note: "Crown Jeweller from 1843 to 2007. Made Princess Diana's sapphire engagement ring, now worn by Catherine, Princess of Wales." },
+  { name: "Mappin & Webb", house: "UK", cat: "jewellery", trade: "Silversmiths, Crown Jeweller", status: "active", est: "1775", note: "Crown Jeweller since 2007, responsible for the care of the Crown Jewels at the Tower. Warrant to Charles III as silversmiths." },
+  { name: "Cartier", house: "UK", cat: "jewellery", trade: "Jewellers", status: "active", est: "1847", note: "Warrant to Elizabeth II held for decades; reappointed under Charles III. Cartier tank watches worn across the family." },
+  { name: "Patrick Mavros", house: "UK", cat: "jewellery", trade: "Silversmith", status: "active", est: "1978", note: "Zimbabwean-founded silversmith with Fulham workshop. African wildlife-motif silverwork; long personal association with the Prince of Wales." },
+  { name: "Floris", house: "UK", cat: "fragrance", trade: "Perfumers", status: "active", est: "1730", note: "Jermyn Street. Warrant to Charles III as perfumers. Also holds a warrant as manufacturers of toilet preparations." },
+  { name: "Penhaligon's", house: "UK", cat: "fragrance", trade: "Perfumers", status: "historical", est: "1870", note: "Held warrants from Prince Philip and Prince of Wales. Blenheim Bouquet was reportedly a favourite of Winston Churchill." },
+  { name: "Creed", house: "UK", cat: "fragrance", trade: "Perfumers", status: "historical", est: "1760 (contested)", note: "The pre-Revolutionary French royal warrants claimed by the house are disputed by scholars. Held a UK warrant under Elizabeth II historically." },
+  { name: "D.R. Harris & Co", house: "UK", cat: "grooming", trade: "Chemists", status: "active", est: "1790", note: "Warrant to Queen Camilla as chemists, granted 2024. St James's Street pharmacy and shaving specialists." },
+  { name: "Truefitt & Hill", house: "UK", cat: "grooming", trade: "Barbers", status: "historical", est: "1805", note: "St James's Street. Held warrants from Prince Philip and Duke of Edinburgh. Guinness record for oldest barbershop." },
+  { name: "Geo. F. Trumper", house: "UK", cat: "grooming", trade: "Barbers and perfumers", status: "historical", est: "1875", note: "Curzon Street and Duke of York Street. Extract of Limes cologne is the house signature." },
+  { name: "Jo Hansford", house: "UK", cat: "beauty", trade: "Hairdresser", status: "active", est: "1993", note: "Warrant to Queen Camilla as hairdresser, granted 2024. Mayfair colourist." },
+  { name: "Heaven Health & Beauty", house: "UK", cat: "beauty", trade: "Skincare and treatments", status: "active", est: "1994", note: "Deborah Mitchell's Belgravia skincare firm. Warrant to Queen Camilla, 2024." },
+  { name: "Fortnum & Mason", house: "UK", cat: "grocers", trade: "Grocers and merchants", status: "active", est: "1707", note: "Piccadilly grocers. Warrant to Charles III and Queen Camilla, reappointed 2025. Christmas hampers to the Household." },
+  { name: "Waitrose", house: "UK", cat: "grocers", trade: "Grocers", status: "active", est: "1904", note: "Warrant to Charles III as grocers. Elizabeth II's preferred supermarket, retained through the reign transition." },
+  { name: "Heinz", house: "UK", cat: "grocers", trade: "Preserved foods", status: "active", est: "1869", note: "Renewed under Charles III in December 2024. Beans and ketchup, unglamorously essential." },
+  { name: "Bollinger", house: "UK", cat: "wine", trade: "Champagne", status: "active", est: "1829", note: "Warrant since Queen Victoria in 1884. James Bond's champagne, also the House's, reappointed under Charles III." },
+  { name: "Laurent-Perrier", house: "UK", cat: "wine", trade: "Champagne", status: "active", est: "1812", note: "Reappointed by Charles III. Long-standing supplier to the Household." },
+  { name: "Pol Roger", house: "UK", cat: "wine", trade: "Champagne", status: "active", est: "1849", note: "Reappointed. Churchill's favoured house, still supplied to Downing Street and Buckingham Palace." },
+  { name: "Veuve Clicquot", house: "UK", cat: "wine", trade: "Champagne", status: "active", est: "1772", note: "Reappointed by Charles III." },
+  { name: "Louis Roederer", house: "UK", cat: "wine", trade: "Champagne", status: "active", est: "1776", note: "Reappointed. Cristal was originally created for Tsar Alexander II." },
+  { name: "Moët & Chandon", house: "UK", cat: "wine", trade: "Champagne", status: "active", est: "1743", note: "Reappointed under Charles III." },
+  { name: "Krug", house: "UK", cat: "wine", trade: "Champagne", status: "historical", est: "1843", note: "Not on the December 2024 list. LVMH-owned; the house's absence was noted in trade press." },
+  { name: "Berry Bros. & Rudd", house: "UK", cat: "wine", trade: "Wine merchants", status: "active", est: "1698", note: "St James's Street. Wine and spirit merchant warrants from Charles III. King Charles III blend produced for his coronation." },
+  { name: "Justerini & Brooks", house: "UK", cat: "wine", trade: "Wine merchants", status: "active", est: "1749", note: "The J&B of blended Scotch. Relationship with the Crown dates to George III's coronation in 1761." },
+  { name: "Laphroaig", house: "UK", cat: "wine", trade: "Scotch whisky", status: "active", est: "1815", note: "Islay single malt. Granted a warrant by Charles III as Prince of Wales in 1994; reappointed as King." },
+  { name: "Royal Lochnagar", house: "UK", cat: "wine", trade: "Scotch whisky", status: "active", est: "1845", note: "Distillery near Balmoral. Prince Albert visited in 1848, resulting in the royal prefix." },
+  { name: "Johnnie Walker", house: "UK", cat: "wine", trade: "Blended Scotch", status: "active", est: "1820", note: "Diageo brand, reappointed December 2024." },
+  { name: "Tanqueray Gordon & Co", house: "UK", cat: "wine", trade: "Gin", status: "active", est: "1830", note: "Reappointed under Charles III. Warrant for gin, the King's reported preference." },
+  { name: "Twinings", house: "UK", cat: "tea", trade: "Tea and coffee", status: "active", est: "1706", note: "Strand shop from 1717. Reappointed as tea suppliers under Charles III." },
+  { name: "Prestat", house: "UK", cat: "tea", trade: "Chocolate", status: "active", est: "1902", note: "Handmade chocolates. Reappointed under Charles III." },
+  { name: "Charbonnel et Walker", house: "UK", cat: "tea", trade: "Chocolate", status: "active", est: "1875", note: "Bond Street chocolatier. Rose and violet creams a house signature." },
+  { name: "Cadbury", house: "UK", cat: "tea", trade: "Chocolate", status: "historical", est: "1824", note: "Held warrant since Queen Victoria; not renewed by Charles III in December 2024. Mondelez-owned; the omission was widely reported alongside continued Russia operations." },
+  { name: "Land Rover", house: "UK", cat: "motors", trade: "Motor vehicles", status: "active", est: "1948", note: "Warrant to Queen Camilla granted 2025 for motor vehicles. Elizabeth II drove her own Land Rovers to the last." },
+  { name: "Jaguar", house: "UK", cat: "motors", trade: "Motor vehicles", status: "active", est: "1922", note: "Included in the JLR warrant to Queen Camilla in 2025." },
+  { name: "Aston Martin", house: "UK", cat: "motors", trade: "Motor vehicles", status: "active", est: "1913", note: "Warrant historically held from Prince of Wales; DB6 Volante gifted to Charles remains in use, converted to bioethanol." },
+  { name: "Bentley", house: "UK", cat: "motors", trade: "Motor vehicles, State Limousines", status: "active", est: "1919", note: "Two bespoke Bentley State Limousines built for Elizabeth II in 2002; used as ceremonial state cars by Charles III." },
+  { name: "Rolls-Royce Motor Cars", house: "UK", cat: "motors", trade: "Motor vehicles", status: "historical", est: "1904", note: "Held warrant from Elizabeth II. State duties transferred to the Bentleys in 2002; historical Phantom VIs remain in the Royal Mews." },
+  { name: "James Purdey & Sons", house: "UK", cat: "firearms", trade: "Gunmakers", status: "active", est: "1814", note: "South Audley Street. Held warrants across five reigns; reappointed under Charles III as gun and rifle makers." },
+  { name: "Holland & Holland", house: "UK", cat: "firearms", trade: "Gunmakers", status: "historical", est: "1835", note: "Historically warrant holders. Owned by Beretta since 2021." },
+  { name: "Hardy Bros", house: "UK", cat: "firearms", trade: "Fishing tackle", status: "active", est: "1872", note: "Reappointed under Charles III. Salmon rods, Alnwick manufacture." },
+  { name: "Barbour", house: "UK", cat: "textiles", trade: "Waxed jackets and country clothing", status: "active", est: "1894", note: "South Shields. Held three warrants at once historically; reappointed under Charles III." },
+  { name: "Hunter Boot", house: "UK", cat: "footwear", trade: "Wellington boots", status: "historical", est: "1856", note: "Elizabeth II wore Hunter wellingtons; the firm has had a chequered warrant history following administration and restructurings." },
+  { name: "Kent Saddlery", house: "UK", cat: "equine", trade: "Saddlery", status: "active", est: "1785", note: "Bespoke saddlery. The Royal Mews retains multiple long-standing suppliers rather than a single grantee." },
+  { name: "Sandringham Kennels", house: "UK", cat: "dogs", trade: "Royal kennels", status: "informal", est: "1879", note: "The Sovereign's own kennels at Sandringham. Historic corgi and dorgi breeding programme under Elizabeth II is now much reduced; Charles III keeps Jack Russells." },
+  { name: "Highgrove Gardens", house: "UK", cat: "garden", trade: "Royal garden estate", status: "informal", est: "1980", note: "The King's own garden project, developed with Rosemary Verey, Miriam Rothschild, and Julian and Isabel Bannerman over four decades." },
+  { name: "Julian and Isabel Bannerman", house: "UK", cat: "garden", trade: "Landscape designers", status: "informal", est: "1983", note: "Designed the Stumpery and Sanctuary at Highgrove and gardens at Dumfries House for Charles III." },
+  { name: "Kim Wilkie", house: "UK", cat: "garden", trade: "Landscape architect", status: "informal", est: "1989", note: "Landform work on royal estates including the Islamic Garden design themes. Historic Great Park consultation." },
+  { name: "Moyses Stevens", house: "UK", cat: "florists", trade: "Florists", status: "active", est: "1876", note: "Reappointed under Charles III. Belgravia florists." },
+  { name: "Linley", house: "UK", cat: "furniture", trade: "Cabinetmakers", status: "informal", est: "1985", note: "David Linley (Viscount Linley), nephew of Elizabeth II. Marquetry and cabinetmaking; the family relationship makes formal warranting moot." },
+  { name: "Howard Chairs", house: "UK", cat: "furniture", trade: "Upholstered furniture", status: "historical", est: "1820", note: "Deep-seated club chairs of the country-house tradition. Historic royal supplier." },
+  { name: "N Peal", house: "UK", cat: "tailoring", trade: "Cashmere", status: "historical", est: "1936", note: "Burlington Arcade. Long informal supply relationship." },
+  { name: "de Gournay", house: "UK", cat: "textiles", trade: "Hand-painted wallpapers", status: "informal", est: "1986", note: "Hand-painted chinoiserie and scenic papers used across state residences and private royal apartments." },
+  { name: "Cole & Son", house: "UK", cat: "textiles", trade: "Wallpaper", status: "active", est: "1875", note: "Reappointed as wallpaper manufacturers under Charles III." },
+  { name: "Savoir Beds", house: "UK", cat: "beds", trade: "Bedmakers", status: "historical", est: "1905", note: "Formerly the Savoy bedmakers. Handcrafted horsehair mattresses; historically supplied royal households." },
+  { name: "Vispring", house: "UK", cat: "beds", trade: "Bedmakers", status: "active", est: "1901", note: "Reappointed under Charles III. Plymouth-based; hand-nested pocket springs." },
+  { name: "Hypnos", house: "UK", cat: "beds", trade: "Bedmakers", status: "active", est: "1904", note: "Reappointed under Charles III. Longwick, Buckinghamshire." },
+  { name: "Peter Reed", house: "UK", cat: "beds", trade: "Bed linens", status: "historical", est: "1861", note: "Nelson, Lancashire. Handmade linens; long-standing supply relationship." },
+  { name: "Steinway & Sons", house: "UK", cat: "pianos", trade: "Pianos", status: "active", est: "1853", note: "Reappointed under Charles III. Steinway grands in state rooms across the residences." },
+  { name: "Broadwood", house: "UK", cat: "pianos", trade: "Pianos", status: "historical", est: "1728", note: "The oldest English piano maker. Broadwoods have been in the royal collections since Prince Albert." },
+  { name: "AGA", house: "UK", cat: "kitchen", trade: "Ranges", status: "historical", est: "1922", note: "Cast-iron ranges. Long-standing rural royal residence fixture; historic warrants." },
+  { name: "Smallbone of Devizes", house: "UK", cat: "kitchen", trade: "Kitchens", status: "historical", est: "1978", note: "Historically supplied bespoke kitchens to the Household." },
+  { name: "Yardley London", house: "UK", cat: "fragrance", trade: "Toiletries", status: "active", est: "1770", note: "Reappointed under Charles III. English Lavender and rose-based classics." },
+  { name: "Royal Crown Derby", house: "UK", cat: "china", trade: "Porcelain", status: "active", est: "1750", note: "The 'Royal' prefix granted by Queen Victoria in 1890. Reappointed under Charles III." },
+  { name: "Royal Doulton", house: "UK", cat: "china", trade: "China", status: "active", est: "1815", note: "Reappointed. Coalport and Minton also part of the Fiskars-owned group." },
+  { name: "Wedgwood", house: "UK", cat: "china", trade: "China", status: "active", est: "1759", note: "Reappointed under Charles III. Original patronage from Queen Charlotte, wife of George III." },
+  { name: "William Yeoward", house: "UK", cat: "silver", trade: "Crystal and silver", status: "informal", est: "1995", note: "Country-house-style glass and silver used across royal tables." },
+  { name: "Halcyon Days", house: "UK", cat: "silver", trade: "Enamels and gifting", status: "active", est: "1950", note: "Reappointed. Small enamels made to commemorate royal events." },
+  { name: "Smythson", house: "UK", cat: "pens", trade: "Stationers", status: "active", est: "1887", note: "Reappointed under Charles III. Bond Street stationers." },
+  { name: "Frost & Reed", house: "UK", cat: "pens", trade: "Fine art dealers", status: "historical", est: "1808", note: "Sporting art dealer with historic royal supply." },
+  { name: "Yard-O-Led", house: "UK", cat: "pens", trade: "Pen and pencil makers", status: "active", est: "1934", note: "Reappointed. Hand-engraved sterling silver pencils and pens." },
+  { name: "Fribourg & Treyer", house: "UK", cat: "grocers", trade: "Tobacconists", status: "historical", est: "1720", note: "Haymarket tobacconist; historic warrants across Georgian and Victorian reigns. Warrants for tobacco have not been issued since the late 1990s." },
+  { name: "The Goring", house: "UK", cat: "grocers", trade: "Hospitality", status: "historical", est: "1910", note: "Belgravia hotel. Warrant to Elizabeth II granted 2013; retains close informal royal ties (site of Catherine Middleton's wedding-eve stay)." },
+  { name: "Chelsea Physic Garden", house: "UK", cat: "garden", trade: "Herbal supply and garden expertise", status: "informal", est: "1673", note: "Historic patronage relationship; herbal and botanical consultation." },
+  { name: "Camel Valley", house: "UK", cat: "wine", trade: "English sparkling wine", status: "active", est: "1989", note: "Cornish vineyard. Warrant renewed 2024. Special Reserve 2015 served at state banquet for President Yoon of South Korea." },
+
+  // ==================== NETHERLANDS ====================
+  { name: "KLM Royal Dutch Airlines", house: "NL", cat: "aviation", trade: "Royal-titled national carrier", status: "active", est: "1919", note: "The Koninklijke prefix granted by Queen Wilhelmina in 1919. Not a Hofleverancier per se; the Koninklijk predicate is granted to large enterprises." },
+  { name: "Royal Delft (De Porceleyne Fles)", house: "NL", cat: "china", trade: "Delftware", status: "active", est: "1653", note: "The last operating original Delft factory. Holds both Koninklijk and Hofleverancier predicates." },
+  { name: "Royal Dutch Shell", house: "NL", cat: "household", trade: "Petroleum, Koninklijk predicate", status: "active", est: "1907", note: "The Koninklijk predicate reflects the corporate honour; not a supply relationship." },
+  { name: "Royal Vopak", house: "NL", cat: "household", trade: "Tank storage, Koninklijk predicate", status: "active", est: "1616", note: "Koninklijk predicate. Oldest listed company on the Amsterdam exchange." },
+  { name: "Van Wees Nieuwendam", house: "NL", cat: "wine", trade: "Distillers", status: "active", est: "1782", note: "Amsterdam distillers of jenever. Hofleverancier." },
+  { name: "E&A Scheer", house: "NL", cat: "wine", trade: "Rum blenders", status: "active", est: "1712", note: "Rum, arrack, and cachaça blender. Received Hofleverancier status in 2017 after three centuries of trading." },
+  { name: "Hema", house: "NL", cat: "household", trade: "Retail (informal supply)", status: "informal", est: "1926", note: "Universal Dutch household retailer; informal supply relationship." },
+  { name: "Koninklijke Tichelaar Makkum", house: "NL", cat: "china", trade: "Ceramics", status: "active", est: "1594", note: "The Netherlands' oldest company. Koninklijk predicate; makes commemorative pieces for the House of Orange-Nassau." },
+  { name: "Rituals", house: "NL", cat: "fragrance", trade: "Home and body cosmetics", status: "informal", est: "2000", note: "Not formally a Hofleverancier (too young for the 100-year rule) but personally reported as a favourite of Queen Máxima." },
+  { name: "Jan de Poorter", house: "NL", cat: "grocers", trade: "Delicatessen", status: "active", est: "1854", note: "The Hague delicatessen. Hofleverancier." },
+  { name: "Koninklijke Gazelle", house: "NL", cat: "household", trade: "Bicycles, Koninklijk predicate", status: "active", est: "1892", note: "Dieren-based bicycle maker. Willem-Alexander is regularly photographed cycling." },
+
+  // ==================== BELGIUM ====================
+  { name: "Neuhaus", house: "BE", cat: "tea", trade: "Chocolatier", status: "active", est: "1857", note: "Warrant Holder of the Court of Belgium. Inventor of the praline in 1912." },
+  { name: "Godiva", house: "BE", cat: "tea", trade: "Chocolatier", status: "active", est: "1926", note: "Warrant Holder of the Court of Belgium. Founded by Joseph Draps in Brussels." },
+  { name: "Wittamer", house: "BE", cat: "tea", trade: "Pâtissier and chocolatier", status: "active", est: "1910", note: "Place du Grand Sablon. Warrant Holder of the Court of Belgium. Made the wedding cake of King Philippe and Queen Mathilde." },
+  { name: "Delvaux", house: "BE", cat: "leather", trade: "Leather goods", status: "active", est: "1829", note: "Oldest fine leather goods house in the world. Warrant Holder of the Court of Belgium." },
+  { name: "Val Saint Lambert", house: "BE", cat: "silver", trade: "Crystal", status: "active", est: "1826", note: "Warrant Holder of the Court of Belgium. Liège crystal works." },
+  { name: "Mary Chocolatier", house: "BE", cat: "tea", trade: "Chocolatier", status: "active", est: "1919", note: "Warrant Holder of the Court of Belgium." },
+  { name: "Corné Port-Royal", house: "BE", cat: "tea", trade: "Chocolatier", status: "active", est: "1932", note: "Warrant Holder of the Court of Belgium." },
+  { name: "Natan Couture", house: "BE", cat: "tailoring", trade: "Couturier", status: "informal", est: "1983", note: "Edouard Vermeulen dresses Queen Mathilde for most state occasions; the closest thing to a couturier of appointment." },
+  { name: "Piper-Heidsieck", house: "BE", cat: "wine", trade: "Champagne", status: "active", est: "1785", note: "Holds a warrant to the Belgian Court, historically." },
+
+  // ==================== LUXEMBOURG ====================
+  { name: "Namur Pâtisserie", house: "LU", cat: "tea", trade: "Pâtissier", status: "active", est: "1863", note: "Fournisseur de la Cour Grand-Ducale. Luxembourg City institution." },
+  { name: "Oberweis", house: "LU", cat: "tea", trade: "Pâtissier and chocolatier", status: "active", est: "1964", note: "Fournisseur de la Cour Grand-Ducale. Made the wedding cake of Guillaume and Stéphanie." },
+  { name: "Bernard-Massard", house: "LU", cat: "wine", trade: "Sparkling wine", status: "active", est: "1921", note: "Fournisseur de la Cour Grand-Ducale. Grevenmacher-based crémant producer." },
+
+  // ==================== SWEDEN ====================
+  { name: "Nordiska Kompaniet", house: "SE", cat: "household", trade: "Department store", status: "active", est: "1902", note: "Kungl. Hovleverantör. Stockholm's grandest department store." },
+  { name: "Georg Sörman", house: "SE", cat: "tailoring", trade: "Menswear", status: "active", est: "1916", note: "Kungl. Hovleverantör. Kungsholmen menswear house." },
+  { name: "Silva Skoultuna", house: "SE", cat: "silver", trade: "Metalwork", status: "active", est: "1607", note: "Kungl. Hovleverantör. Sweden's second-oldest company still trading; brass and silverware." },
+  { name: "Rörstrand", house: "SE", cat: "china", trade: "Porcelain", status: "historical", est: "1726", note: "Second-oldest porcelain manufacturer in Europe. Long historic royal patronage." },
+  { name: "A.Larsson Silver", house: "SE", cat: "silver", trade: "Silversmith", status: "active", est: "1868", note: "Kungl. Hovleverantör. Gothenburg silversmiths." },
+  { name: "Malmstenbutiken", house: "SE", cat: "furniture", trade: "Furniture", status: "active", est: "1916", note: "Carl Malmsten's furniture house. Kungl. Hovleverantör; the Samsas armchair and Riksdag chair are theirs." },
+  { name: "Hökerum Bruk", house: "SE", cat: "furniture", trade: "Furniture", status: "active", est: "1854", note: "Kungl. Hovleverantör." },
+  { name: "Aeijmelaeus Konditori", house: "SE", cat: "tea", trade: "Pâtissier", status: "active", est: "1889", note: "Kungl. Hovleverantör." },
+  { name: "Ekströms Fisk", house: "SE", cat: "grocers", trade: "Fishmonger", status: "active", est: "1935", note: "Kungl. Hovleverantör." },
+  { name: "Nils Wallgren Silversmedja", house: "SE", cat: "silver", trade: "Silversmith", status: "active", est: "1948", note: "Kungl. Hovleverantör." },
+
+  // ==================== NORWAY ====================
+  { name: "Freia", house: "NO", cat: "tea", trade: "Chocolate", status: "historical", est: "1889", note: "Historic Hoffleverandør. Norway ended new warrants years ago; existing status is grandfathered where held." },
+  { name: "David-Andersen", house: "NO", cat: "jewellery", trade: "Jewellers and silversmiths", status: "historical", est: "1876", note: "Long-standing royal supplier. Karl Johans gate." },
+  { name: "Hjelle", house: "NO", cat: "furniture", trade: "Furniture", status: "historical", est: "1941", note: "Long-standing royal supplier." },
+
+  // ==================== DENMARK ====================
+  { name: "Georg Jensen", house: "DK", cat: "silver", trade: "Silversmiths", status: "phaseout", est: "1904", note: "Kongelig Hofleverandør. All Danish royal warrants being phased out by 2029 under Frederik X's 2024 modernisation announcement." },
+  { name: "Royal Copenhagen", house: "DK", cat: "china", trade: "Porcelain", status: "phaseout", est: "1775", note: "Founded under royal patronage. Warrant to be phased out by 2029; the manufactory continues." },
+  { name: "Bang & Olufsen", house: "DK", cat: "household", trade: "Audio equipment", status: "phaseout", est: "1925", note: "Purveyor to the Court; status set to lapse by 2029." },
+  { name: "Illums Bolighus", house: "DK", cat: "furniture", trade: "Design retailer", status: "phaseout", est: "1925", note: "Purveyor to the Court under the outgoing regime." },
+  { name: "A. Michelsen", house: "DK", cat: "silver", trade: "Silversmiths", status: "phaseout", est: "1841", note: "Silversmiths to the Court. Made the Danish crown jewels' modern settings. Status to lapse." },
+  { name: "A.C. Perch's Thehandel", house: "DK", cat: "tea", trade: "Tea merchant", status: "phaseout", est: "1835", note: "Copenhagen's oldest tea merchant. Purveyor to the Court." },
+  { name: "Fritz Hansen", house: "DK", cat: "furniture", trade: "Furniture", status: "phaseout", est: "1872", note: "Purveyor to the Court. Arne Jacobsen's Egg and Swan chairs are theirs." },
+  { name: "Anthon Berg", house: "DK", cat: "tea", trade: "Chocolate", status: "phaseout", est: "1884", note: "Purveyor to the Court." },
+  { name: "A. Dragsted", house: "DK", cat: "jewellery", trade: "Jewellers", status: "phaseout", est: "1854", note: "Purveyor to the Court." },
+  { name: "Peter Beier Chokolade", house: "DK", cat: "tea", trade: "Chocolatier", status: "phaseout", est: "1994", note: "Purveyor to the Court." },
+
+  // ==================== SPAIN ====================
+  { name: "Loewe", house: "ES", cat: "leather", trade: "Leather goods", status: "historical", est: "1846", note: "Proveedor de la Real Casa historically. Spain no longer issues formal royal appointments under Felipe VI." },
+  { name: "Lladró", house: "ES", cat: "china", trade: "Porcelain", status: "historical", est: "1953", note: "Valencia porcelain. Historic royal association without an active warrant." },
+  { name: "Grassy", house: "ES", cat: "jewellery", trade: "Jewellers", status: "informal", est: "1923", note: "Gran Vía jewellers; historic supply to the royal household." },
+  { name: "Casa Yustas", house: "ES", cat: "hats", trade: "Hatters", status: "informal", est: "1894", note: "Plaza Mayor. Historic royal supplier." },
+  { name: "Sastrería Reyes", house: "ES", cat: "tailoring", trade: "Tailors", status: "informal", est: "1948", note: "Madrid tailors long associated with the royal household." },
+
+  // ==================== MONACO ====================
+  { name: "Hermès", house: "MC", cat: "leather", trade: "Leather goods", status: "informal", est: "1837", note: "The Kelly bag was named for Princess Grace after she used one to shield her pregnancy from photographers in 1956. Grace Kelly's own commissions are legend." },
+  { name: "Cartier Monte-Carlo", house: "MC", cat: "jewellery", trade: "Jewellers", status: "informal", est: "1847", note: "Long-standing supplier to the Grimaldi household." },
+  { name: "Van Cleef & Arpels", house: "MC", cat: "jewellery", trade: "Jewellers", status: "informal", est: "1896", note: "Prince Rainier commissioned Princess Grace's engagement piece; the house has supplied Monaco for generations." },
+
+  // ==================== LIECHTENSTEIN ====================
+  { name: "Hilti Werkzeuge", house: "LI", cat: "household", trade: "Industrial tools (national supplier)", status: "informal", est: "1941", note: "The Principality's largest company; supplies household and estate operations. Not a formal warrant regime." },
+
+  // ==================== JAPAN ====================
+  { name: "Mikimoto", house: "JP", cat: "jewellery", trade: "Pearls", status: "historical", est: "1899", note: "Kōkichi Mikimoto invented cultured pearls. Historic supplier to the Imperial Household; the pre-war Kunaishō purveyors system was abolished in 1947." },
+  { name: "Wako (Hattori)", house: "JP", cat: "jewellery", trade: "Jewellers and watchmakers", status: "historical", est: "1881", note: "The Ginza clock-tower building. Historic Imperial purveyor (Seiko's parent firm)." },
+  { name: "Toraya", house: "JP", cat: "tea", trade: "Confectioner (wagashi)", status: "informal", est: "1526", note: "Kyoto confectioner to the Imperial Household from the Emperor Go-Yōzei's reign. Continues to supply the Imperial family informally." },
+  { name: "Takashimaya", house: "JP", cat: "household", trade: "Department store", status: "informal", est: "1831", note: "Historic Imperial purveyor. Nihonbashi flagship." },
+  { name: "Fukujuen", house: "JP", cat: "tea", trade: "Tea merchants", status: "informal", est: "1790", note: "Kyoto tea merchants; historic supplier to the Imperial Household." },
+  { name: "Osaka Nishikawa", house: "JP", cat: "beds", trade: "Bedding and futons", status: "informal", est: "1566", note: "Historic Imperial purveyor of bedding." },
+
+  // ==================== THAILAND ====================
+  { name: "Jim Thompson", house: "TH", cat: "textiles", trade: "Thai silk", status: "active", est: "1948", note: "Holds the Garuda emblem as a Royal Warrant of Appointment. Bangkok silks; the founder's disappearance in 1967 remains unresolved." },
+  { name: "Doi Kham", house: "TH", cat: "grocers", trade: "Agricultural produce", status: "active", est: "1994", note: "Royal Project Foundation brand; Garuda emblem holder. The late King Bhumibol's highland agricultural initiative." },
+  { name: "Siam Kempinski Bangkok", house: "TH", cat: "grocers", trade: "Hospitality", status: "informal", est: "2010", note: "Sits on Crown Property Bureau land; historic royal association." },
+  { name: "P. Tendercool", house: "TH", cat: "furniture", trade: "Furniture", status: "informal", est: "2008", note: "Bangkok furniture atelier; supplies members of the royal family." },
+
+  // ==================== BRUNEI ====================
+  { name: "Rolls-Royce (Brunei fleet)", house: "BN", cat: "motors", trade: "Motor vehicles", status: "informal", est: "1904", note: "Sultan Hassanal Bolkiah's fleet reportedly includes several hundred Rolls-Royces, including a number of one-off commissions. Brunei has no formal warrant system." },
+  { name: "Bentley (Brunei)", house: "BN", cat: "motors", trade: "Motor vehicles", status: "informal", est: "1919", note: "The Sultan's collection reportedly includes multiple bespoke Bentleys, including the Dominator, an eight-off SUV commissioned in the 1990s." },
+  { name: "Cipriani (yachts)", house: "BN", cat: "aviation", trade: "Yacht building", status: "informal", est: "1985", note: "The Sultan's yacht Tits (renamed) was Cipriani-built. Brunei's royal yacht history is idiosyncratic." },
+
+  // ==================== BHUTAN ====================
+  { name: "Gagyel Lhundrup Weaving Centre", house: "BT", cat: "textiles", trade: "Handwoven textiles", status: "informal", est: "1990", note: "Thimphu weaving centre supplying royal household ceremonial dress (gho and kira)." },
+  { name: "Bhutan Postal Corporation", house: "BT", cat: "pens", trade: "Ceremonial stationery", status: "informal", est: "1962", note: "Court stationery and philatelic issues." },
+
+  // ==================== MALAYSIA ====================
+  { name: "Royal Selangor", house: "MY", cat: "silver", trade: "Pewter", status: "active", est: "1885", note: "The world's largest pewter maker. Holds the Royal warrant for the Sultan of Selangor; supplies multiple state and federal royal households on the rotating Yang di-Pertuan Agong system." },
+  { name: "Habib Jewels", house: "MY", cat: "jewellery", trade: "Jewellers", status: "informal", est: "1958", note: "Long-standing supplier to state royal households." },
+  { name: "Songket Palace", house: "MY", cat: "textiles", trade: "Songket weaving", status: "informal", est: "1980", note: "Royal ceremonial textile production (songket) for state investitures." },
+
+  // ==================== SAUDI ARABIA ====================
+  { name: "Charvet Place Vendôme", house: "SA", cat: "tailoring", trade: "Shirtmakers", status: "informal", est: "1838", note: "Long reported as a preferred shirtmaker for members of the Al Saud family. No formal warrant system in Saudi Arabia." },
+  { name: "Stefano Ricci", house: "SA", cat: "tailoring", trade: "Menswear", status: "informal", est: "1972", note: "Florentine house with a long client relationship with senior Gulf royals; opened boutiques in Riyadh." },
+  { name: "Amiri", house: "SA", cat: "tailoring", trade: "Menswear (contemporary)", status: "informal", est: "2014", note: "Los Angeles house with substantial Gulf royal clientele." },
+  { name: "Rolls-Royce Bespoke (Riyadh)", house: "SA", cat: "motors", trade: "Motor vehicles", status: "informal", est: "1904", note: "Saudi royal fleet includes numerous Rolls-Royce bespoke commissions; Riyadh dealership is one of the marque's largest markets." },
+  { name: "Louis Vuitton (custom trunks)", house: "SA", cat: "leather", trade: "Luggage and trunks", status: "informal", est: "1854", note: "Custom trunk commissions and personalisation are a long-running relationship with senior Al Saud family members." },
+  { name: "Boucheron", house: "SA", cat: "jewellery", trade: "Jewellers", status: "informal", est: "1858", note: "Historic supplier to royal courts including the Al Saud house." },
+
+  // ==================== UAE ====================
+  { name: "Mercedes-Maybach (Abu Dhabi)", house: "AE", cat: "motors", trade: "Motor vehicles", status: "informal", est: "1997", note: "The Al Nahyan and Al Maktoum houses maintain substantial Maybach and Mercedes G-Wagen fleets." },
+  { name: "Cheval Blanc (Emirates fleet)", house: "AE", cat: "equine", trade: "Thoroughbred racing", status: "informal", est: "1981", note: "Godolphin, established by Sheikh Mohammed bin Rashid Al Maktoum, is Dubai's global thoroughbred operation." },
+  { name: "Emirates Palace suppliers", house: "AE", cat: "grocers", trade: "State hospitality", status: "informal", est: "2005", note: "Emirates Palace and Qasr Al Watan operate as effective ceremonial households; suppliers include multiple international luxury food houses." },
+  { name: "Bulgari", house: "AE", cat: "jewellery", trade: "Jewellers", status: "informal", est: "1884", note: "Long-standing supplier to Emirati royal households; Dubai and Abu Dhabi flagships." },
+
+  // ==================== QATAR ====================
+  { name: "Sotheby's / Christie's private sales", house: "QA", cat: "furniture", trade: "Art and antiquities", status: "informal", est: "1744/1766", note: "The Al Thani collection is one of the world's most significant private art holdings, built substantially through the auction houses' private-sale channels." },
+  { name: "Qatar Airways VVIP", house: "QA", cat: "aviation", trade: "Private aviation", status: "informal", est: "1993", note: "Qatar Executive operates the Emiri Amiri Flight VVIP aircraft including a Boeing 747-8i for the royal family." },
+
+  // ==================== OMAN ====================
+  { name: "Amouage", house: "OM", cat: "fragrance", trade: "Perfumers", status: "active", est: "1983", note: "Founded by the Sultan of Oman's decree. The house is de facto the state perfumery; Muscat production." },
+  { name: "Khalifa bin Ibrahim Bookbindery", house: "OM", cat: "pens", trade: "Bookbinding", status: "informal", est: "1970s", note: "Court bookbindery, restored under the late Sultan Qaboos' patronage of Omani crafts." },
+
+  // ==================== JORDAN ====================
+  { name: "Zaha Hadid Design (Amman commissions)", house: "JO", cat: "furniture", trade: "Design commissions", status: "informal", est: "2006", note: "Queen Rania has commissioned pieces; the late Zaha Hadid's Jordanian-British connection produced multiple royal commissions." },
+  { name: "Elie Saab", house: "JO", cat: "tailoring", trade: "Couturier", status: "informal", est: "1982", note: "Preferred couturier of Queen Rania for state occasions; Beirut-based." },
+  { name: "Chopard", house: "JO", cat: "jewellery", trade: "Jewellers", status: "informal", est: "1860", note: "Long-standing Hashemite family jeweller." },
+
+  // ==================== MOROCCO ====================
+  { name: "Berrada Sons", house: "MA", cat: "textiles", trade: "Djellaba tailors, Fez", status: "informal", est: "1900s", note: "Traditional Moroccan robe tailors serving the royal court in Fez and Rabat." },
+  { name: "Serge Lutens (Marrakech)", house: "MA", cat: "fragrance", trade: "Perfumers", status: "informal", est: "1992", note: "Long personal association with Moroccan cultural patronage." },
+  { name: "Yves Saint Laurent (Marrakech legacy)", house: "MA", cat: "tailoring", trade: "Couturier legacy and Jardin Majorelle", status: "informal", est: "1961", note: "The Jardin Majorelle and YSL's Marrakech legacy is intertwined with Moroccan royal patronage." },
+
+];
+
+// Rendering
+const grid = document.getElementById('grid');
+const search = document.getElementById('search');
+const countEl = document.getElementById('count');
+let filters = { house: 'all', cat: 'all', status: 'all', q: '' };
+
+const HOUSE_NAMES = {
+  UK: 'United Kingdom', NL: 'Netherlands', BE: 'Belgium', LU: 'Luxembourg',
+  SE: 'Sweden', NO: 'Norway', DK: 'Denmark', ES: 'Spain', MC: 'Monaco',
+  LI: 'Liechtenstein', JP: 'Japan', TH: 'Thailand', BN: 'Brunei', BT: 'Bhutan',
+  MY: 'Malaysia', SA: 'Saudi Arabia', AE: 'UAE', QA: 'Qatar', OM: 'Oman',
+  JO: 'Jordan', MA: 'Morocco'
+};
+
+const STATUS_META = {
+  active: { label: 'Active warrant', cls: 'status-active' },
+  phaseout: { label: 'Phasing out', cls: 'status-phaseout' },
+  historical: { label: 'Historical', cls: 'status-historical' },
+  informal: { label: 'Known supplier', cls: 'status-informal' }
+};
+
+function render() {
+  const q = filters.q.toLowerCase().trim();
+  const filtered = VENDORS.filter(v => {
+    if (filters.house !== 'all' && v.house !== filters.house) return false;
+    if (filters.cat !== 'all' && v.cat !== filters.cat) return false;
+    if (filters.status !== 'all' && v.status !== filters.status) return false;
+    if (q) {
+      const hay = (v.name + ' ' + v.trade + ' ' + v.note + ' ' + HOUSE_NAMES[v.house] + ' ' + v.cat).toLowerCase();
+      if (!hay.includes(q)) return false;
+    }
+    return true;
+  });
+
+  countEl.textContent = `${filtered.length} ${filtered.length === 1 ? 'entry' : 'entries'}`;
+
+  if (filtered.length === 0) {
+    grid.innerHTML = '<div class="empty-state">No entries match. Try clearing a filter.</div>';
+    return;
+  }
+
+  grid.innerHTML = filtered.map(v => {
+    const sm = STATUS_META[v.status];
+    return `
+      <article class="card">
+        <div class="card-top">
+          <span class="card-house">${HOUSE_NAMES[v.house]}</span>
+          <span class="status-dot ${sm.cls}">${sm.label}</span>
+        </div>
+        <h3>${v.name}</h3>
+        <div class="category">${v.trade}</div>
+        <p>${v.note}</p>
+        <div class="footer">
+          <span class="est">Est. ${v.est}</span>
+          <span>${v.cat.replace(/^./, c => c.toUpperCase())}</span>
+        </div>
+      </article>
+    `;
+  }).join('');
+}
+
+// Filter buttons
+document.querySelectorAll('.chip').forEach(chip => {
+  chip.addEventListener('click', () => {
+    const type = chip.dataset.filter;
+    const value = chip.dataset.value;
+    document.querySelectorAll(`.chip[data-filter="${type}"]`).forEach(c => c.classList.remove('active'));
+    chip.classList.add('active');
+    filters[type] = value;
+    render();
+  });
+});
+
+// Search
+search.addEventListener('input', (e) => {
+  filters.q = e.target.value;
+  render();
+});
+
+render();
+</script>
+
+</body>
+</html>
